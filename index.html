@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<head>
+    <script type="text/javascript" src="http://cdn.craftycomponents.com/crafty-release.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+
+    Game = {
+
+        Tile: {
+            width: function() { return 16 },
+            height: function() { return 16 }
+        },
+
+
+        Board: {
+            width: function() { return Game.Tile.width() * Game.Board.widthInTiles() },
+            widthInTiles: function() { return 16 },
+            height: function() { return Game.Tile.height() * Game.Board.heightInTiles() },
+            heightInTiles: function() { return 16 }
+        },
+
+
+        _createPlayerComponent: function() {
+            Crafty.c('Player', {
+
+                init: function() {
+                    this.requires('2D, DOM, Color, Keyboard, Collision');
+
+                    this.attr({
+                        x: Crafty.math.randomInt(0, Game.Board.widthInTiles() - 1) * Game.Tile.width(),
+                        y: Crafty.math.randomInt(0, Game.Board.heightInTiles() - 1) * Game.Tile.height(),
+                        w: Game.Tile.width(),
+                        h: Game.Tile.height()
+                    })
+
+                    this.color('black');
+
+                    this.bind('KeyDown', function(e) {
+                        var oldPosition = {
+                            x: this.x,
+                            y: this.y
+                        };
+
+                        if (this.isDown('D')) {
+                            this.move('e', Game.Tile.width());
+                        }
+                        else if (this.isDown('A')) {
+                            this.move('w', Game.Tile.width());
+                        }
+                        else if (this.isDown('S')) {
+                            this.move('s', Game.Tile.height());
+                        }
+                        else if (this.isDown('W')) {
+                            this.move('n', Game.Tile.height());
+                        }
+
+                        var collisionStone  = this.hit('Stone');
+                        var collisionBorder = this.x < 0 || this.x > Game.Board.width() - Game.Tile.width() ||
+                                this.y < 0 || this.y > Game.Board.height() - Game.Tile.height();
+
+                        if (collisionStone || collisionBorder) {
+                            this.x = oldPosition.x;
+                            this.y = oldPosition.y;
+                        }
+                    });
+                }
+
+            });
+        },
+
+
+        _createStoneComponent: function() {
+            Crafty.c('Stone', {
+
+                init: function() {
+                    this.requires('2D, DOM, Color');
+                    this.color('grey');
+                    this.attr({
+                        x: Crafty.math.randomInt(0, Game.Board.widthInTiles() - 1) * Game.Tile.width(),
+                        y: Crafty.math.randomInt(0, Game.Board.heightInTiles() - 1) * Game.Tile.height(),
+                        w: Game.Tile.width(),
+                        h: Game.Tile.height()
+                    });
+                }
+
+            });
+        },
+
+
+        start: function() {
+            Crafty.init(Game.Board.width(), Game.Board.height());
+            Crafty.background('green');
+
+            Game._createPlayerComponent();
+            Game._createStoneComponent();
+
+            // create player
+            Crafty.e('Player');
+
+            // create some stones
+            for (x = Crafty.math.randomInt(10, 15); x > 0; x--) {
+                Crafty.e('Stone');
+            }
+        }
+
+    }
+
+    window.addEventListener('load', Game.start);
+
+</script>
+</body>
+</html>
