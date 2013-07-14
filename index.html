@@ -5,7 +5,7 @@
 <body>
 <script type="text/javascript">
 
-    Game = {
+    var Game = {
 
         Tile: {
             width: function() { return 16 },
@@ -59,10 +59,21 @@
                         var collisionBorder = this.x < 0 || this.x > Game.Board.width() - Game.Tile.width() ||
                                 this.y < 0 || this.y > Game.Board.height() - Game.Tile.height();
 
-                        if (collisionStone || collisionBorder) {
+                        if (collisionBorder) {
                             this.x = oldPosition.x;
                             this.y = oldPosition.y;
+
+                            this.color('white');
                         }
+
+                        else if (collisionStone) {
+                            Crafty.audio.play('eating');
+                            collisionStone[0].obj.destroy();
+                        }
+                    });
+
+                    this.bind('KeyUp', function() {
+                        this.color('black');
                     });
                 }
 
@@ -91,6 +102,14 @@
         start: function() {
             Crafty.init(Game.Board.width(), Game.Board.height());
             Crafty.background('green');
+
+
+            Crafty.audio.add("eating", [
+                "sounds/eating.mp3",
+                "sounds/eating.ogg",
+                "sounds/eating.wav"
+            ]);
+
 
             Game._createPlayerComponent();
             Game._createStoneComponent();
